@@ -1,8 +1,9 @@
-wts01:
-  id: wts01_sensor
-  tx_pin: ${tx_pin}
+uart:
   rx_pin: ${rx_pin}
   baud_rate: 9600
+
+wts01:
+  id: wts01_sensor
 
 sensor:
   - platform: wts01
