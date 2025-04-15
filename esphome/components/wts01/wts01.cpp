@@ -5,7 +5,15 @@
 namespace esphome {
 namespace wts01 {
 
-void WTS01Component::loop() {
+static const char *const TAG = "wts01";
+static const uint8_t PACKET_SIZE = 9;
+static const uint8_t HEADER_1 = 0x55;
+static const uint8_t HEADER_2 = 0x01;
+static const uint8_t HEADER_3 = 0x01;
+static const uint8_t HEADER_4 = 0x04;
+static const uint8_t READ_WAIT_TIME = 200;  // milliseconds
+
+void WTS01Sensor::loop() {
   while (available()) {
     uint8_t c;
     if (read_byte(&c)) {
@@ -14,9 +22,13 @@ void WTS01Component::loop() {
   }
 }
 
-void WTS01Component::dump_config() { ESP_LOGCONFIG(TAG, "WTS01 Component:"); }
+void WTS01Sensor::dump_config() {
+  ESP_LOGCONFIG(TAG, "WTS01 Temperature Sensor:");
+  LOG_SENSOR("  ", "Temperature", this->temperature_sensor_);
+  this->check_uart_settings(9600);
+}
 
-void WTS01Component::handle_char_(uint8_t c) {
+void WTS01Sensor::handle_char_(uint8_t c) {
   // Reset buffer if we're at the start of a new packet
   if (c == HEADER_1 && this->buffer_pos_ == 0) {
     this->buffer_[this->buffer_pos_++] = c;
@@ -49,7 +61,7 @@ void WTS01Component::handle_char_(uint8_t c) {
   }
 }
 
-void WTS01Component::process_packet_() {
+void WTS01Sensor::process_packet_() {
   // Based on Tasmota implementation
   // Format: 55 01 01 04 01 11 16 12 95
   // header            T  Td Ck  - T = Temperature, Td = Temperature decimal, Ck = Checksum
@@ -73,6 +85,11 @@ void WTS01Component::process_packet_() {
     // Store temperature
     this->current_temperature_ = temperature;
     ESP_LOGV(TAG, "Temperature: %.2f°C", temperature);
+
+    // Publish to sensor component if available
+    if (this->temperature_sensor_ != nullptr) {
+      this->temperature_sensor_->publish_state(temperature);
+    }
   }
 }
 
