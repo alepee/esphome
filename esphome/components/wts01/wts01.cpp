@@ -71,7 +71,7 @@ void WTS01Sensor::process_packet_() {
       this->buffer_[3] == HEADER_4) {
     // Extract temperature value
     uint8_t temp = this->buffer_[6];
-    int sign = 1;
+    int32_t sign = 1;
 
     // Handle negative temperatures
     if (temp > 127) {
