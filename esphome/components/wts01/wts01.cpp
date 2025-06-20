@@ -14,7 +14,7 @@ static const uint8_t HEADER_4 = 0x04;
 
 void WTS01Sensor::loop() {
   // Process characters received from the sensor
-  while (available()) {
+  if (available()) {
     uint8_t c;
     if (read_byte(&c)) {
       this->handle_char_(c);
