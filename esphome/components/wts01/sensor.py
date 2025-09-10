@@ -10,7 +10,8 @@ from esphome.const import (
 )
 
 CONF_WTS01_ID = "wts01_id"
-DEPENDENCIES = wts01.DEPENDENCIES
+CODEOWNERS = ["@alepee"]
+DEPENDENCIES = ["uart"]
 
 wts01_ns = cg.esphome_ns.namespace("wts01")
 WTS01Sensor = wts01_ns.class_(
@@ -27,6 +28,7 @@ CONFIG_SCHEMA = (
     )
     .extend(cv.COMPONENT_SCHEMA)
     .extend(uart.UART_DEVICE_SCHEMA)
+    .extend(uart.final_validate_device_schema(name="WTS01", baud_rate=9600))
 )
 
 
